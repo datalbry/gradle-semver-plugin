@@ -86,6 +86,19 @@ class VersionCalculatorTest {
     }
 
     @Test
+    fun calculateNextVersion_withAllPatchTypes_raisesPatchForEach() {
+        val lastVersion = SemanticVersion(1, 0, 0)
+        val commitTypes = listOf("fix", "build", "ci", "docs", "pref", "refactor", "style", "test")
+        val finalVersion = commitTypes.fold(lastVersion) { currentVersion, nextCommitType ->
+            val commits = listOf("$nextCommitType: another one")
+            versionCalculator.calculateNextVersion(commits, currentVersion)
+        }
+        assertEquals(finalVersion.major, 1)
+        assertEquals(finalVersion.minor, 0)
+        assertEquals(finalVersion.patch, commitTypes.size)
+    }
+
+    @Test
     fun calculateNextVersion_withExclamationMark_raisesMajor() {
         val commits = listOf(
             "fix(scope_1)!: ugh, i hate bugs"
